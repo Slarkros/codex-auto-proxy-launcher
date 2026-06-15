@@ -1,4 +1,4 @@
-﻿# Codex 自动代理启动器
+﻿# Codex 自动代理启动器--专门解决codex-unreconnecting
 
 读取 Windows 当前系统代理，并通过该代理启动 Codex。启动器不会修改系统代理
 或全局代理环境变量。
