@@ -124,6 +124,35 @@ function Get-CodexExecutable {
     return $executable
 }
 
+function Update-LauncherShortcutIcons {
+    param(
+        [string]$IconPath
+    )
+
+    $shortcutPaths = @(
+        (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Codex 自动代理.lnk'),
+        (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Codex 自动代理.lnk')
+    )
+
+    try {
+        $shell = New-Object -ComObject WScript.Shell
+        foreach ($shortcutPath in $shortcutPaths) {
+            if (-not (Test-Path -LiteralPath $shortcutPath)) {
+                continue
+            }
+
+            $shortcut = $shell.CreateShortcut($shortcutPath)
+            $newIconLocation = "$IconPath,0"
+            if ($shortcut.IconLocation -ne $newIconLocation) {
+                $shortcut.IconLocation = $newIconLocation
+                $shortcut.Save()
+            }
+        }
+    } catch {
+        # Icon refresh is best-effort; launching Codex should not fail because of it.
+    }
+}
+
 try {
     $proxyUri = Get-CurrentSystemProxy
     if (-not (Test-TcpPort -HostName $proxyUri.Host -Port $proxyUri.Port)) {
@@ -131,6 +160,7 @@ try {
     }
 
     $codexExecutable = Get-CodexExecutable
+    Update-LauncherShortcutIcons -IconPath $codexExecutable
 
     if ($CheckOnly) {
         Write-Output "检查成功"
